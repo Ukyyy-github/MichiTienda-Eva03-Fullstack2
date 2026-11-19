@@ -3,6 +3,7 @@ package com.michipanaderia.michipanaderia.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.michipanaderia.michipanaderia.DTO.UsuarioDTO;
@@ -23,6 +24,9 @@ public class UsuarioService {
     @Autowired
     private RolRepository rolRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;    
+
     public List<UsuarioDTO> obtenerTodos() {
         return usuarioRepository.findAll().stream()
                 .map(this::convertirADTO)
@@ -42,6 +46,9 @@ public class UsuarioService {
         Rol rol = rolRepository.findById(usuario.getRol().getId())
                 .orElseThrow(() -> new RuntimeException("¡El rol indicado no existe!"));
         usuario.setRol(rol);
+
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+
         return usuarioRepository.save(usuario);
     }
 
@@ -61,7 +68,8 @@ public class UsuarioService {
             usr.setEmail(usuario.getEmail());
         }
         if (usuario.getPassword() != null) {
-            usr.setPassword(usuario.getPassword());
+            //usr.setPassword(usuario.getPassword());
+            usr.setPassword(passwordEncoder.encode(usuario.getPassword()));
         }
         if (usuario.getTelefono() != null) {
             usr.setTelefono(usuario.getTelefono());
